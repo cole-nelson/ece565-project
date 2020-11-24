@@ -1,3 +1,9 @@
+/*OBQ does not update all PCs that are matching within the entries
+ *only updates the first by going to the BHT to change the local prediction
+ *
+ *
+ */
+
 #include <iostream>
 #include <vector>
 using namespace std;
