@@ -51,6 +51,8 @@ BaseO3DynInst<Impl>::BaseO3DynInst(const StaticInstPtr &staticInst,
                                    TheISA::PCState pc, TheISA::PCState predPC,
                                    InstSeqNum seq_num, O3CPU *cpu)
     : BaseDynInst<Impl>(staticInst, macroop, pc, predPC, seq_num, cpu)
+    //will need to adjust the instantiation of this to pass the OBQ tag
+        //for the instruction
 {
     initVars();
 }

@@ -70,7 +70,7 @@ BaseDynInst<Impl>::BaseDynInst(const StaticInstPtr &_staticInst,
     reqToVerify(nullptr)
 {
     seqNum = seq_num;
-
+        //here is where I add the OBQ tag value
     pc = _pc;
     predPC = _predPC;
 

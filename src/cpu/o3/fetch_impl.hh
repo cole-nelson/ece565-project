@@ -571,6 +571,11 @@ DefaultFetch<Impl>::lookupAndUpdateNextPC(
     predict_taken = branchPred->predict(inst->staticInst, inst->seqNum,
                                         nextPC, tid);
 
+    //here is where I will add OBQ tag to instruction
+        //through inst->OBQ_tag = some value based on OBQ
+    //or will go a level deeper into the branch Predunit,
+        //but this is where OBQ tag must be recieved and edited
+
     if (predict_taken) {
         DPRINTF(Fetch, "[tid:%i] [sn:%llu] Branch at PC %#x "
                 "predicted to be taken to %s\n",
