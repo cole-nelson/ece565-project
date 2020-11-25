@@ -34,6 +34,8 @@
 #ifndef __CPU_PRED_LOOP_PREDICTOR_HH__
 #define __CPU_PRED_LOOP_PREDICTOR_HH__
 
+#include <vector>
+
 #include "base/statistics.hh"
 #include "base/types.hh"
 #include "sim/sim_object.hh"
@@ -258,5 +260,29 @@ class LoopPredictor : public SimObject
     LoopPredictor(LoopPredictorParams *p);
 
     size_t getSizeInBits() const;
+};
+
+class OBQ : public LoopPredictor
+{
+        public:
+                struct OBQ_entry
+                {
+                        bool valid;
+                        Addr branch_pc;
+                        BranchInfo *bi;
+                };
+                std::vector<OBQ_entry> g_OBQ;
+                int head = 0;
+                int tail = 0;
+                int size_of_OBQ = 32;
+
+                /*Function to repair mispredicted branch, handled in squash*/
+                void repair_branch(BranchInfo *bi);
+
+                /*Function to retire OBQ entry after cond branch committed*/
+                void retire_branch(BranchInfo *bi);
+
+                /*Function to add new branch instruction to OBQ*/
+                void new_branch_inst(Addr branch_pc, BranchInfo *bi);
 };
 #endif//__CPU_PRED_LOOP_PREDICTOR_HH__

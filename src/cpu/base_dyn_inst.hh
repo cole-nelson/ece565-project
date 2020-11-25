@@ -164,6 +164,9 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** InstRecord that tracks this instructions. */
     Trace::InstRecord *traceData;
 
+        //** Tag Value of OBQ entry if necessary - cond branches */
+        unsigned int obqTAG;
+
   protected:
     /** The result of the instruction; assumes an instruction can have many
      *  destination registers.

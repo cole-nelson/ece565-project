@@ -70,7 +70,6 @@ BaseDynInst<Impl>::BaseDynInst(const StaticInstPtr &_staticInst,
     reqToVerify(nullptr)
 {
     seqNum = seq_num;
-        //here is where I add the OBQ tag value
     pc = _pc;
     predPC = _predPC;
 
@@ -95,6 +94,7 @@ BaseDynInst<Impl>::initVars()
     physEffAddr = 0;
     readyRegs = 0;
     memReqFlags = 0;
+        obqTAG = -1; //OBQ tag initialized to -1
 
     status.reset();
 
