@@ -68,6 +68,9 @@ class BPredUnit : public SimObject
      */
     BPredUnit(const Params *p);
 
+        /* obq tag value*/
+        InstSeqNum obqtag;
+
     /**
      * Registers statistics.
      */

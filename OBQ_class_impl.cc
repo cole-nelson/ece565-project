@@ -66,33 +66,33 @@ int OBQ::new_branch_inst(int pc, bool pattern, bool valid)
                 return tag;
         }
 }
-void print_OBQ(OBQ obq);
+void print_OBQ(OBQ *obq);
 int main()
 {
         int ret_val;
-        OBQ obq;
+        OBQ *obq = new OBQ;
         for (int i = 0; i < 32; i++)
         {
-                ret_val = obq.new_branch_inst((i %4), false, true);
+                ret_val = obq->new_branch_inst((i %4), false, true);
         }
-        obq.retire_branch(0);
-        obq.retire_branch(1);
-        obq.retire_branch(2);
-        obq.retire_branch(3);
+        obq->retire_branch(0);
+        obq->retire_branch(1);
+        obq->retire_branch(2);
+        obq->retire_branch(3);
 
         print_OBQ(obq);
         return 0;
 
 }
-void print_OBQ(OBQ obq)
+void print_OBQ(OBQ *obq)
 {
-        for (int i =0; i < obq.g_OBQ.size(); i++)
+        for (int i =0; i < obq->g_OBQ.size(); i++)
         {
                 cout << "Index: " << i << " " << "PC: "
-                << obq.g_OBQ[i].pc << " Pattern: "
-                << obq.g_OBQ[i].pattern << endl;
+                << obq->g_OBQ[i].pc << " Pattern: "
+                << obq->g_OBQ[i].pattern << endl;
 
         }
-        cout << "HEAD: " << obq.head << " TAIL: " << obq.tail << endl;
+        cout << "HEAD: " << obq->head << " TAIL: " << obq->tail << endl;
         return;
 }

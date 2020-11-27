@@ -1067,10 +1067,17 @@ DefaultCommit<Impl>::commitInsts()
                 if (cpu->checker) {
                     cpu->checker->verify(head_inst);
                 }
-
+                                //check if instruction is a control / branch
+                                //if so retire from OBQ if within the OBQ
+                                /*if (head_inst->isControl())
+                                {
+                                        obq->retire_branch(head_inst->obqTAG);
+                                        //base_dyn_inst line l68
+                                }*/
                 cpu->traceFunctions(pc[tid].instAddr());
 
                 TheISA::advancePC(pc[tid], head_inst->staticInst);
+
 
                 // Keep track of the last sequence number commited
                 lastCommitedSeqNum[tid] = head_inst->seqNum;

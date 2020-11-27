@@ -61,8 +61,8 @@ class LTAGE : public TAGE
 {
   public:
     LTAGE(const LTAGEParams *params);
-        /*Outstanding branch queue*/
-        OBQ *obq;
+    /*Outstanding branch queue object*/
+    OBQ *obq;
 
     // Base class methods.
     void squash(ThreadID tid, void *bp_history) override;

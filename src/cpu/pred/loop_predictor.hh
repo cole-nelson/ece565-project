@@ -38,6 +38,7 @@
 
 #include "base/statistics.hh"
 #include "base/types.hh"
+#include "cpu/inst_seq.hh"
 #include "sim/sim_object.hh"
 
 struct LoopPredictorParams;
@@ -262,27 +263,29 @@ class LoopPredictor : public SimObject
     size_t getSizeInBits() const;
 };
 
-class OBQ : public LoopPredictor
+class OBQ
 {
         public:
                 struct OBQ_entry
                 {
+                                                Addr branch_pc;
                         bool valid;
-                        Addr branch_pc;
-                        BranchInfo *bi;
+                        bool loopPredUsed;
+                                                InstSeqNum tag;
                 };
-                std::vector<OBQ_entry> g_OBQ;
-                int head = 0;
-                int tail = 0;
-                int size_of_OBQ = 32;
+        std::vector<OBQ_entry> g_OBQ;
+        int head = 0;
+        int tail = 0;
+        int size_of_OBQ = 32;
 
-                /*Function to repair mispredicted branch, handled in squash*/
-                void repair_branch(BranchInfo *bi);
+        /*Function to repair mispredicted branch, handled in squash*/
+        //void repair_branch(BranchInfo *bi);
 
-                /*Function to retire OBQ entry after cond branch committed*/
-                void retire_branch(BranchInfo *bi);
+        /*Function to retire OBQ entry after cond branch committed*/
+        void retire_branch(int tag);
 
-                /*Function to add new branch instruction to OBQ*/
-                void new_branch_inst(Addr branch_pc, BranchInfo *bi);
+        /*Function to add new branch instruction to OBQ*/
+        int new_branch_inst(Addr branch_pc, bool loopPredUsed,
+                bool loopPredValid, InstSeqNum obqtag);
 };
 #endif//__CPU_PRED_LOOP_PREDICTOR_HH__

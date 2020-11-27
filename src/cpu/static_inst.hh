@@ -123,7 +123,6 @@ class StaticInst : public RefCounted, public StaticInstFlags
     /** @} */
 
   public:
-
     /// @name Register information.
     /// The sum of numFPDestRegs(), numIntDestRegs(), numVecDestRegs(),
     /// numVecElemDestRegs() and numVecPredDestRegs() equals numDestRegs().
@@ -148,6 +147,8 @@ class StaticInst : public RefCounted, public StaticInstFlags
     /// Number of coprocesor destination regs.
     int8_t numCCDestRegs() const { return _numCCDestRegs; }
     //@}
+
+
 
     /// @name Flag accessors.
     /// These functions are used to access the values of the various

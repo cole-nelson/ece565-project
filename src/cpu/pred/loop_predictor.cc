@@ -371,3 +371,53 @@ LoopPredictorParams::create()
 {
     return new LoopPredictor(this);
 }
+/*int
+OBQ::retire_branch(int tag)
+{
+        if (g_OBQ.empty())
+        {
+                return;
+        }
+        g_OBQ.erase(g_OBQ.begin()+(tag - head));
+        head++;
+        if (head > size_of_OBQ)
+        {
+                head = 0;
+        }
+}*/
+int
+OBQ::new_branch_inst(Addr branch_pc, bool loopPredUsed, bool loopPredValid,
+InstSeqNum obqtag)
+{
+        int tag = g_OBQ.size();
+        if (((head % size_of_OBQ) ==
+                ((tail) % size_of_OBQ)) && (g_OBQ.size() == 32))
+        {
+                return -1;
+        }
+        else
+        {
+                if (loopPredValid)
+                {
+                        //add to the end
+                        g_OBQ.push_back({branch_pc, loopPredUsed,
+                                                loopPredValid, obqtag});
+                }
+                else
+                {
+                        //add before the tail
+                        OBQ_entry temp;
+                        g_OBQ.push_back({branch_pc, loopPredUsed,
+                                                loopPredValid, obqtag});
+                        g_OBQ[tail-1] = temp;
+                        g_OBQ[tail-1] = g_OBQ[tail];
+                        g_OBQ[tail] = temp;
+                }
+                tail++;
+                if (tail > 31)
+                {
+                        tail = 0;
+                }
+                return tag;
+        }
+}

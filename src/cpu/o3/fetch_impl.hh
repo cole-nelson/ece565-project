@@ -571,6 +571,8 @@ DefaultFetch<Impl>::lookupAndUpdateNextPC(
     predict_taken = branchPred->predict(inst->staticInst, inst->seqNum,
                                         nextPC, tid);
 
+        //inst->obqTAG = inst->staticInst.obqTAG;
+
     //here is where I will add OBQ tag to instruction
         //through inst->OBQ_tag = some value based on OBQ
     //or will go a level deeper into the branch Predunit,
@@ -1040,6 +1042,7 @@ DefaultFetch<Impl>::checkSignalsAndUpdate(ThreadID tid)
         // Update the branch predictor if it wasn't a squashed instruction
         // that was broadcasted.
         branchPred->update(fromCommit->commitInfo[tid].doneSeqNum, tid);
+                //doneseqnum correlates to the obqtag  **********************
     }
 
     // Check squash signals from decode.

@@ -47,6 +47,8 @@
 LTAGE::LTAGE(const LTAGEParams *params)
   : TAGE(params), loopPredictor(params->loop_predictor)
 {
+        OBQ *o = new OBQ;
+        obq = o;
 }
 
 void
@@ -68,6 +70,11 @@ LTAGE::predict(ThreadID tid, Addr branch_pc, bool cond_branch, void* &b)
     pred_taken = loopPredictor->loopPredict(tid, branch_pc, cond_branch,
                                             bi->lpBranchInfo, pred_taken,
                                             instShiftAmt);
+
+        //add new prediction to OBQ
+        obq->new_branch_inst(branch_pc, bi->lpBranchInfo->loopPredUsed,
+                bi->lpBranchInfo->loopPredValid, obqtag);
+
     if (cond_branch) {
         if (bi->lpBranchInfo->loopPredUsed) {
             bi->tageBranchInfo->provider = LOOP;
