@@ -47,8 +47,7 @@
 LTAGE::LTAGE(const LTAGEParams *params)
   : TAGE(params), loopPredictor(params->loop_predictor)
 {
-        OBQ *o = new OBQ;
-        obq = o;
+        obq = new OBQ;
 }
 
 void
@@ -71,15 +70,15 @@ LTAGE::predict(ThreadID tid, Addr branch_pc, bool cond_branch, void* &b)
                                             bi->lpBranchInfo, pred_taken,
                                             instShiftAmt);
 
-        //add new prediction to OBQ
-        obq->new_branch_inst(branch_pc, bi->lpBranchInfo->loopPredUsed,
-                bi->lpBranchInfo->loopPredValid,
-                                bi->lpBranchInfo->currentIter, obqtag);
-
     if (cond_branch) {
         if (bi->lpBranchInfo->loopPredUsed) {
             bi->tageBranchInfo->provider = LOOP;
+                        //add new prediction to OBQ
+                obq->new_branch_inst(branch_pc, bi->lpBranchInfo->loopPredUsed,
+            bi->lpBranchInfo->loopPredValid,
+            bi->lpBranchInfo->currentIter, obqtag);
         }
+
         DPRINTF(LTage, "Predict for %lx: taken?:%d, loopTaken?:%d, "
                 "loopValid?:%d, loopUseCounter:%d, tagePred:%d, altPred:%d\n",
                 branch_pc, pred_taken, bi->lpBranchInfo->loopPred,
@@ -146,8 +145,19 @@ LTAGE::squash(ThreadID tid, void *bp_history)
     LTageBranchInfo* bi = (LTageBranchInfo*)(bp_history);
 
     if (bi->tageBranchInfo->condBranch) {
-                loopPredictor->set_repair_bit();
-        loopPredictor->squash(tid, bi->lpBranchInfo);
+        //loopPredictor->set_repair_bit(); //gets set multiple times
+                if (obq->g_OBQ.size() != 0)
+                {
+                        if (obq->g_OBQ.back().tag >= freed_seq_num)
+                        {
+                                loopPredictor->squash(tid, bi->lpBranchInfo);
+                                if (cycles == -1)
+                                {
+                                cycles = obq->repair_branch(squash_seq_num);
+                                }
+                        }
+                }
+
     }
 
     TAGE::squash(tid, bp_history);

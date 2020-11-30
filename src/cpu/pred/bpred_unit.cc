@@ -375,7 +375,7 @@ BPredUnit::squash(const InstSeqNum &squashed_sn, ThreadID tid)
     if (iPred) {
         iPred->squash(squashed_sn, tid);
     }
-
+        cycles = -1;
     while (!pred_hist.empty() &&
            pred_hist.front().seqNum > squashed_sn) {
         if (pred_hist.front().usedRAS) {
@@ -393,7 +393,8 @@ BPredUnit::squash(const InstSeqNum &squashed_sn, ThreadID tid)
                      pred_hist.front().seqNum, pred_hist.front().pc);
              RAS[tid].pop();
         }
-                squash_seq_num = squashed_sn;
+        squash_seq_num = squashed_sn;
+                freed_seq_num = pred_hist.front().seqNum;
         // This call should delete the bpHistory.
         squash(tid, pred_hist.front().bpHistory);
         if (iPred) {
@@ -410,6 +411,8 @@ BPredUnit::squash(const InstSeqNum &squashed_sn, ThreadID tid)
         DPRINTF(Branch, "[tid:%i] [squash sn:%llu] predHist.size(): %i\n",
                 tid, squashed_sn, predHist[tid].size());
     }
+        std::cout << "Num of Cycles to delay from repair: "
+        << cycles << std::endl;
 }
 
 void

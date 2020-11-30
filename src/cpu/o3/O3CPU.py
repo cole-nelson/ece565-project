@@ -174,7 +174,7 @@ class DerivO3CPU(BaseCPU):
     smtROBThreshold = Param.Int(100, "SMT ROB Threshold Sharing Parameter")
     smtCommitPolicy = Param.CommitPolicy('RoundRobin', "SMT Commit Policy")
 
-    branchPred = Param.BranchPredictor(TAGE(numThreads =
+    branchPred = Param.BranchPredictor(LTAGE(numThreads =
                                                        Parent.numThreads),
                                        "Branch Predictor")
     needsTSO = Param.Bool(buildEnv['TARGET_ISA'] == 'x86',

@@ -284,7 +284,7 @@ class OBQ
         int size_of_OBQ = 32;
 
         /*Function to repair mispredicted branch, handled in squash*/
-        void repair_branch(InstSeqNum squash_seq_num);
+        int repair_branch(InstSeqNum squash_seq_num);
 
         /*Function to retire OBQ entry after cond branch committed*/
         void retire_branch(InstSeqNum done_seq_num);

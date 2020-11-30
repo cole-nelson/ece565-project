@@ -68,14 +68,22 @@ class BPredUnit : public SimObject
      */
     BPredUnit(const Params *p);
 
-        /* obq tag value*/
-        InstSeqNum obqtag;
+    /* obq tag value*/
+    InstSeqNum obqtag;
 
-                /*done seq value*/
-                InstSeqNum done_seq_num;
+    /*done seq value*/
+    InstSeqNum done_seq_num;
 
-                /*squash sq value*/
-                InstSeqNum squash_seq_num;
+    /*squash sq value*/
+    InstSeqNum squash_seq_num;
+
+        /*freed seq value*/
+        InstSeqNum freed_seq_num;
+
+        /*number of cycles to stall*/
+        int cycles;
+
+
 
     /**
      * Registers statistics.
