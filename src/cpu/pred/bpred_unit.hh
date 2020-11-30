@@ -71,6 +71,12 @@ class BPredUnit : public SimObject
         /* obq tag value*/
         InstSeqNum obqtag;
 
+                /*done seq value*/
+                InstSeqNum done_seq_num;
+
+                /*squash sq value*/
+                InstSeqNum squash_seq_num;
+
     /**
      * Registers statistics.
      */

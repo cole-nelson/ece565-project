@@ -348,6 +348,8 @@ BPredUnit::update(const InstSeqNum &done_sn, ThreadID tid)
     DPRINTF(Branch, "[tid:%i] Committing branches until "
             "sn:%llu]\n", tid, done_sn);
 
+    done_seq_num = done_sn;
+
     while (!predHist[tid].empty() &&
            predHist[tid].back().seqNum <= done_sn) {
         // Update the branch predictor with the correct results.
@@ -391,7 +393,7 @@ BPredUnit::squash(const InstSeqNum &squashed_sn, ThreadID tid)
                      pred_hist.front().seqNum, pred_hist.front().pc);
              RAS[tid].pop();
         }
-
+                squash_seq_num = squashed_sn;
         // This call should delete the bpHistory.
         squash(tid, pred_hist.front().bpHistory);
         if (iPred) {

@@ -68,9 +68,10 @@ class LoopPredictor : public SimObject
         uint16_t tag;
         uint8_t age;
         bool dir; // only for useDirectionBit
+                bool repair; //used for local branch repair
 
         LoopEntry() : numIter(0), currentIter(0), currentIterSpec(0),
-                      confidence(0), tag(0), age(0), dir(0) { }
+                      confidence(0), tag(0), age(0), dir(0), repair(0) { }
     };
 
     LoopEntry *ltable;
@@ -221,6 +222,9 @@ class LoopPredictor : public SimObject
         ThreadID tid, Addr branch_pc, bool cond_branch,
         BranchInfo* bi, bool prev_pred_taken, unsigned instShiftAmt);
 
+        /*Function to set all repair bits in ltable*/
+        void set_repair_bit(void);
+
     /**
      * Update the stats
      * @param taken Actual branch outcome
@@ -268,10 +272,11 @@ class OBQ
         public:
                 struct OBQ_entry
                 {
-                                                Addr branch_pc;
+                        Addr branch_pc;
                         bool valid;
                         bool loopPredUsed;
-                                                InstSeqNum tag;
+                                                uint16_t curriter;
+                        InstSeqNum tag;
                 };
         std::vector<OBQ_entry> g_OBQ;
         int head = 0;
@@ -279,13 +284,14 @@ class OBQ
         int size_of_OBQ = 32;
 
         /*Function to repair mispredicted branch, handled in squash*/
-        //void repair_branch(BranchInfo *bi);
+        void repair_branch(InstSeqNum squash_seq_num);
 
         /*Function to retire OBQ entry after cond branch committed*/
-        void retire_branch(int tag);
+        void retire_branch(InstSeqNum done_seq_num);
 
         /*Function to add new branch instruction to OBQ*/
         int new_branch_inst(Addr branch_pc, bool loopPredUsed,
-                bool loopPredValid, InstSeqNum obqtag);
+                bool loopPredValid, uint16_t curriter, InstSeqNum obqtag);
+
 };
 #endif//__CPU_PRED_LOOP_PREDICTOR_HH__

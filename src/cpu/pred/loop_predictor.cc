@@ -286,7 +286,16 @@ LoopPredictor::loopPredict(ThreadID tid, Addr branch_pc, bool cond_branch,
 
     return pred_taken;
 }
+void
+LoopPredictor::set_repair_bit()
+{
+        int ltable_size = sizeof(ltable)/sizeof(LoopEntry);
+        for (int i = 0; i < ltable_size; i++)
+        {
+                ltable[i].repair = 1;
+        }
 
+}
 void
 LoopPredictor::squash(ThreadID tid, BranchInfo *bi)
 {
@@ -371,23 +380,34 @@ LoopPredictorParams::create()
 {
     return new LoopPredictor(this);
 }
-/*int
-OBQ::retire_branch(int tag)
+void
+OBQ::retire_branch(InstSeqNum done_seq_num)
 {
+                int start, end = -1;
         if (g_OBQ.empty())
         {
                 return;
         }
-        g_OBQ.erase(g_OBQ.begin()+(tag - head));
-        head++;
-        if (head > size_of_OBQ)
-        {
-                head = 0;
-        }
-}*/
+                for (int i = 0; i < g_OBQ.size(); i++)
+                {
+                        if (g_OBQ[i].tag <= done_seq_num)
+                        {
+                                start = 0;
+                                end++;
+                        head++;
+                        if (head > size_of_OBQ)
+                        {
+                            head = 0;
+                        }
+                        }
+                }
+                g_OBQ.erase(g_OBQ.begin()+start, g_OBQ.begin()+end);
+                return;
+}
+//\*****DOUBLE CHECK IMPLEMENTATION******\//
 int
 OBQ::new_branch_inst(Addr branch_pc, bool loopPredUsed, bool loopPredValid,
-InstSeqNum obqtag)
+uint16_t curriter, InstSeqNum obqtag)
 {
         int tag = g_OBQ.size();
         if (((head % size_of_OBQ) ==
@@ -401,14 +421,14 @@ InstSeqNum obqtag)
                 {
                         //add to the end
                         g_OBQ.push_back({branch_pc, loopPredUsed,
-                                                loopPredValid, obqtag});
+                        loopPredValid, curriter, obqtag});
                 }
                 else
                 {
                         //add before the tail
                         OBQ_entry temp;
                         g_OBQ.push_back({branch_pc, loopPredUsed,
-                                                loopPredValid, obqtag});
+                        loopPredValid, curriter, obqtag});
                         g_OBQ[tail-1] = temp;
                         g_OBQ[tail-1] = g_OBQ[tail];
                         g_OBQ[tail] = temp;
@@ -420,4 +440,23 @@ InstSeqNum obqtag)
                 }
                 return tag;
         }
+}
+void
+OBQ::repair_branch(InstSeqNum squash_seq_num)
+{
+                int start, end = -1;
+        if (g_OBQ.empty())
+        {
+                return;
+        }
+                for (int i = 0; i < g_OBQ.size(); i++)
+                {
+                        if (g_OBQ[i].tag >= squash_seq_num)
+                        {
+
+                        }
+                }
+                g_OBQ.erase(g_OBQ.begin()+start, g_OBQ.begin()+end);
+                return;
+
 }
