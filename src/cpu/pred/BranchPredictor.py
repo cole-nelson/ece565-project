@@ -181,7 +181,7 @@ class LoopPredictor(SimObject):
     # (http://hpca23.cse.tamu.edu/taco/camino/cbp2/cbp-src/realistic-seznec.h)
 
     # Add speculation
-    useSpeculation = Param.Bool(False, "Use speculation")
+    useSpeculation = Param.Bool(True, "Use speculation")
 
     # Add hashing for calculating the loop table index
     useHashing = Param.Bool(False, "Use hashing")
