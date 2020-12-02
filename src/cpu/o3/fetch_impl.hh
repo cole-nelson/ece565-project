@@ -960,7 +960,7 @@ DefaultFetch<Impl>::tick()
     unsigned available_insts = 0;
 
     for (auto tid : *activeThreads) {
-        if (!stalls[tid].decode && !stalls[tid].decode) {
+        if (!stalls[tid].decode && !stalls[tid].bpred) {
             available_insts += fetchQueue[tid].size();
         }
     }
@@ -971,7 +971,7 @@ DefaultFetch<Impl>::tick()
 
     while (available_insts != 0 && insts_to_decode < decodeWidth) {
         ThreadID tid = *tid_itr;
-        if (!stalls[tid].decode && !stalls[tid].decode
+        if (!stalls[tid].decode && !stalls[tid].bpred
                         && !fetchQueue[tid].empty()) {
             const auto& inst = fetchQueue[tid].front();
             toDecode->insts[toDecode->size++] = inst;

@@ -124,10 +124,10 @@ LTAGE::update(ThreadID tid, Addr branch_pc, bool taken, void* bp_history,
         loopPredictor->updateStats(taken, bi->lpBranchInfo);
 
         loopPredictor->condBranchUpdate(tid, branch_pc, taken,
-            bi->tageBranchInfo->tagePred, bi->lpBranchInfo, instShiftAmt);
+        bi->tageBranchInfo->tagePred, bi->lpBranchInfo, instShiftAmt);
 
-                //take done seq num, anything less than it, remove from OBQ//
-                obq->retire_branch(done_seq_num);
+        //take done seq num, anything less than it, remove from OBQ//
+        obq->retire_branch(done_seq_num);
 
         tage->condBranchUpdate(tid, branch_pc, taken, bi->tageBranchInfo,
             nrand, corrTarget, bi->lpBranchInfo->predTaken);

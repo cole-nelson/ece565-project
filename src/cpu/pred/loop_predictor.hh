@@ -281,7 +281,7 @@ class OBQ
         std::vector<OBQ_entry> g_OBQ;
         int head = 0;
         int tail = 0;
-        int size_of_OBQ = 16;
+        int size_of_OBQ = 64;
 
         /*Function to repair mispredicted branch, handled in squash*/
         int repair_branch(InstSeqNum squash_seq_num);
