@@ -420,7 +420,7 @@ uint16_t curriter, InstSeqNum obqtag)
                 << tail << " valid: " << loopPredValid << std::endl;
         int tag = g_OBQ.size();
         if (((head % size_of_OBQ) ==
-                ((tail) % size_of_OBQ)) && (g_OBQ.size() == 32))
+                ((tail) % size_of_OBQ)) && (g_OBQ.size() == size_of_OBQ))
         {
                 return -1;
         }
@@ -452,7 +452,7 @@ uint16_t curriter, InstSeqNum obqtag)
                                                 }
                 }
                 tail++;
-                if (tail > 31)
+                if (tail > size_of_OBQ - 1)
                 {
                         tail = 0;
                 }
@@ -515,6 +515,6 @@ OBQ::repair_branch(InstSeqNum squash_seq_num)
                         << g_OBQ.size() << " head: " << head << " tail: "
                         << tail << std::endl;
                 }
-        return pcs.size();
+        return pcs.size() * 10;
 
 }

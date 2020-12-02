@@ -127,7 +127,7 @@ DefaultFetch<Impl>::DefaultFetch(O3CPU *_cpu, DerivO3CPUParams *params)
         macroop[i] = nullptr;
         delayedCommit[i] = false;
         memReq[i] = nullptr;
-        stalls[i] = {false, false};
+        stalls[i] = {false, false, false};
         fetchBuffer[i] = NULL;
         fetchBufferPC[i] = 0;
         fetchBufferValid[i] = false;
@@ -338,6 +338,7 @@ DefaultFetch<Impl>::clearStates(ThreadID tid)
     memReq[tid] = NULL;
     stalls[tid].decode = false;
     stalls[tid].drain = false;
+        stalls[tid].bpred = false; //might not need
     fetchBufferPC[tid] = 0;
     fetchBufferValid[tid] = false;
     fetchQueue[tid].clear();
@@ -368,6 +369,7 @@ DefaultFetch<Impl>::resetStage()
 
         stalls[tid].decode = false;
         stalls[tid].drain = false;
+                stalls[tid].bpred = false;
 
         fetchBufferPC[tid] = 0;
         fetchBufferValid[tid] = false;
@@ -958,7 +960,7 @@ DefaultFetch<Impl>::tick()
     unsigned available_insts = 0;
 
     for (auto tid : *activeThreads) {
-        if (!stalls[tid].decode) {
+        if (!stalls[tid].decode && !stalls[tid].decode) {
             available_insts += fetchQueue[tid].size();
         }
     }
@@ -969,7 +971,8 @@ DefaultFetch<Impl>::tick()
 
     while (available_insts != 0 && insts_to_decode < decodeWidth) {
         ThreadID tid = *tid_itr;
-        if (!stalls[tid].decode && !fetchQueue[tid].empty()) {
+        if (!stalls[tid].decode && !stalls[tid].decode
+                        && !fetchQueue[tid].empty()) {
             const auto& inst = fetchQueue[tid].front();
             toDecode->insts[toDecode->size++] = inst;
             DPRINTF(Fetch, "[tid:%i] [sn:%llu] Sending instruction to decode "
@@ -1012,6 +1015,15 @@ DefaultFetch<Impl>::checkSignalsAndUpdate(ThreadID tid)
         assert(!fromDecode->decodeBlock[tid]);
         stalls[tid].decode = false;
     }
+        if (branchPred->cycles > 0)
+        {
+                stalls[tid].bpred = true;
+                branchPred->cycles--;
+        }
+        else
+        {
+                stalls[tid].bpred = false;
+        }
 
     // Check squash signals from commit.
     if (fromCommit->commitInfo[tid].squash) {
@@ -1032,6 +1044,7 @@ DefaultFetch<Impl>::checkSignalsAndUpdate(ThreadID tid)
                               fromCommit->commitInfo[tid].pc,
                               fromCommit->commitInfo[tid].branchTaken,
                               tid);
+
         } else {
             branchPred->squash(fromCommit->commitInfo[tid].doneSeqNum,
                               tid);
