@@ -44,6 +44,7 @@
 #include "debug/Fetch.hh"
 #include "debug/LTage.hh"
 
+
 LTAGE::LTAGE(const LTAGEParams *params)
   : TAGE(params), loopPredictor(params->loop_predictor)
 {
@@ -103,6 +104,7 @@ LTAGE::update(ThreadID tid, Addr branch_pc, bool taken, void* bp_history,
 
             if (bi->tageBranchInfo->condBranch) {
                 loopPredictor->squashLoop(bi->lpBranchInfo);
+                stall_cycles = loopPredictor->stall_cycles;
             }
         }
         return;
@@ -136,9 +138,12 @@ LTAGE::squash(ThreadID tid, void *bp_history)
 
     if (bi->tageBranchInfo->condBranch) {
         loopPredictor->squash(tid, bi->lpBranchInfo);
+        stall_cycles = loopPredictor->stall_cycles;
     }
 
+    DPRINTF(LTage, "About to squash TAGE\n");
     TAGE::squash(tid, bp_history);
+    DPRINTF(LTage, "Squash complete\n");
 }
 
 void

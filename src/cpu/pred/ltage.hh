@@ -57,6 +57,8 @@
 #include "cpu/pred/tage.hh"
 #include "params/LTAGE.hh"
 
+#include "cpu/pred/pc_repair.hh"
+
 class LTAGE : public TAGE
 {
   public:

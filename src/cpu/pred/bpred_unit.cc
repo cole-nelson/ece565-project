@@ -61,7 +61,8 @@ BPredUnit::BPredUnit(const Params *params)
           params->numThreads),
       RAS(numThreads),
       iPred(params->indirectBranchPred),
-      instShiftAmt(params->instShiftAmt)
+      instShiftAmt(params->instShiftAmt),
+      stall_cycles(0)
 {
     for (auto& r : RAS)
         r.init(params->RASSize);

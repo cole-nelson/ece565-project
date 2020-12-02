@@ -59,9 +59,9 @@ class BranchPredictor(SimObject):
     abstract = True
 
     numThreads = Param.Unsigned(Parent.numThreads, "Number of threads")
-    BTBEntries = Param.Unsigned(4096, "Number of BTB entries")
+    BTBEntries = Param.Unsigned(2048, "Number of BTB entries")
     BTBTagSize = Param.Unsigned(16, "Size of the BTB tags, in bits")
-    RASSize = Param.Unsigned(16, "RAS size")
+    RASSize = Param.Unsigned(32, "RAS size")
     instShiftAmt = Param.Unsigned(2, "Number of bits to shift instructions by")
 
     indirectBranchPred = Param.IndirectPredictor(SimpleIndirectPredictor(),
@@ -124,7 +124,7 @@ class TAGEBase(SimObject):
     tagTableCounterBits = Param.Unsigned(3, "Number of tag table counter bits")
     tagTableUBits = Param.Unsigned(2, "Number of tag table u bits")
 
-    histBufferSize = Param.Unsigned(2097152,
+    histBufferSize = Param.Unsigned(8192,
             "A large number to track all branch histories(2MEntries default)")
 
     pathHistBits = Param.Unsigned(16, "Path history size")
@@ -152,6 +152,7 @@ class TAGE(BranchPredictor):
     tage = Param.TAGEBase(TAGEBase(), "Tage object")
 
 class LTAGE_TAGE(TAGEBase):
+    histBufferSize = 8192
     nHistoryTables = 12
     minHist = 4
     maxHist = 640
@@ -170,8 +171,8 @@ class LoopPredictor(SimObject):
     loopTableConfidenceBits = Param.Unsigned(2,
             "Number of confidence bits per loop entry")
     loopTableTagBits = Param.Unsigned(14, "Number of tag bits per loop entry")
-    loopTableIterBits = Param.Unsigned(14, "Nuber of iteration bits per loop")
-    logLoopTableAssoc = Param.Unsigned(2, "Log loop predictor associativity")
+    loopTableIterBits = Param.Unsigned(11, "Nuber of iteration bits per loop")
+    logLoopTableAssoc = Param.Unsigned(8, "Log loop predictor associativity")
 
     # Parameters for enabling modifications to the loop predictor
     # They have been copied from TAGE-GSC-IMLI
@@ -181,7 +182,7 @@ class LoopPredictor(SimObject):
     # (http://hpca23.cse.tamu.edu/taco/camino/cbp2/cbp-src/realistic-seznec.h)
 
     # Add speculation
-    useSpeculation = Param.Bool(False, "Use speculation")
+    useSpeculation = Param.Bool(True, "Use speculation")
 
     # Add hashing for calculating the loop table index
     useHashing = Param.Bool(False, "Use hashing")

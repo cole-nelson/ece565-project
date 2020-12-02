@@ -456,6 +456,7 @@ class DefaultFetch
     struct Stalls {
         bool decode;
         bool drain;
+        bool bp;
     };
 
     /** Tracks which stages are telling fetch to stall. */

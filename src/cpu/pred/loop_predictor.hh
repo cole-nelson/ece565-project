@@ -38,6 +38,8 @@
 #include "base/types.hh"
 #include "sim/sim_object.hh"
 
+#include "pc_repair.hh"
+
 struct LoopPredictorParams;
 
 class LoopPredictor : public SimObject
@@ -83,9 +85,14 @@ class LoopPredictor : public SimObject
     const unsigned initialLoopAge;
     const bool optionalAgeReset;
 
+public:
+    PCRepair repair;
+    int stall_cycles;
+    
     // stats
     Stats::Scalar loopPredictorCorrect;
     Stats::Scalar loopPredictorWrong;
+
 
     /**
      * Updates an unsigned counter based on up/down parameter

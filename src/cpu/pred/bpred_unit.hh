@@ -340,6 +340,9 @@ class BPredUnit : public SimObject
     /** Miss-predicted branches */
     ProbePoints::PMUUPtr ppMisses;
 
+  public:
+    int stall_cycles;
+
     /** @} */
 };
 

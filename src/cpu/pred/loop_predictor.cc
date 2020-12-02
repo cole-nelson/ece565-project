@@ -37,6 +37,9 @@
 #include "debug/LTage.hh"
 #include "params/LoopPredictor.hh"
 
+#include "pc_repair.hh"
+#include "debug/PCRepair.hh"
+
 LoopPredictor::LoopPredictor(LoopPredictorParams *p)
   : SimObject(p), logSizeLoopPred(p->logSizeLoopPred),
     loopTableAgeBits(p->loopTableAgeBits),
@@ -56,7 +59,9 @@ LoopPredictor::LoopPredictor(LoopPredictorParams *p)
     restrictAllocation(p->restrictAllocation),
     initialLoopIter(p->initialLoopIter),
     initialLoopAge(p->initialLoopAge),
-    optionalAgeReset(p->optionalAgeReset)
+    optionalAgeReset(p->optionalAgeReset),
+    repair(PCRepair(1024)),
+    stall_cycles(0)
 {
     assert(initialLoopAge <= ((1 << loopTableAgeBits) - 1));
 }
@@ -173,6 +178,7 @@ LoopPredictor::optionalAgeInc() const
 void
 LoopPredictor::loopUpdate(Addr pc, bool taken, BranchInfo* bi, bool tage_pred)
 {
+    //DPRINTF(PCRepair, "Entering LoopUpdate\n");
     int idx = finallindex(bi->loopIndex, bi->loopIndexB, bi->loopHit);
     if (bi->loopHit >= 0) {
         //already a hit
@@ -187,6 +193,11 @@ LoopPredictor::loopUpdate(Addr pc, bool taken, BranchInfo* bi, bool tage_pred)
             } else if (bi->loopPred != tage_pred || optionalAgeInc()) {
                 DPRINTF(LTage, "Loop Prediction success:%lx\n",pc);
                 unsignedCtrUpdate(ltable[idx].age, true, loopTableAgeBits);
+                if(bi->loopPredUsed) {
+                    // Repair: Mark PC in LRU set since it overrode the TAGE predictor
+                    repair.remove_history_pc(idx);
+                    repair.mark_pc(idx);
+                }
             }
         }
 
@@ -290,10 +301,16 @@ LoopPredictor::loopPredict(ThreadID tid, Addr branch_pc, bool cond_branch,
 void
 LoopPredictor::squash(ThreadID tid, BranchInfo *bi)
 {
+    //DPRINTF(PCRepair, "Squashing LoopPredictor\n");
     if (bi->loopHit >= 0) {
         int idx = finallindex(bi->loopIndex,
                 bi->loopIndexB,
                 bi->loopHit);
+        if(!repair.eligible(idx)) {
+            return;
+        }
+        DPRINTF(PCRepair, "Repairing PC %d", idx);
+        stall_cycles = 1;
         ltable[idx].currentIterSpec = bi->currentIter;
     }
 }
@@ -301,10 +318,16 @@ LoopPredictor::squash(ThreadID tid, BranchInfo *bi)
 void
 LoopPredictor::squashLoop(BranchInfo* bi)
 {
+    
     if (bi->loopHit >= 0) {
         int idx = finallindex(bi->loopIndex,
                 bi->loopIndexB,
                 bi->loopHit);
+        if(!repair.eligible(idx)) {
+            return;
+        }
+        DPRINTF(PCRepair, "Repairing PC %d", idx);
+        stall_cycles = 1;
         ltable[idx].currentIterSpec = bi->currentIter;
     }
 }

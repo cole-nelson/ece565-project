@@ -72,6 +72,7 @@
 #include "sim/full_system.hh"
 #include "sim/system.hh"
 #include "cpu/o3/isa_specific.hh"
+#include "debug/PCRepair.hh"
 
 using namespace std;
 
@@ -127,7 +128,7 @@ DefaultFetch<Impl>::DefaultFetch(O3CPU *_cpu, DerivO3CPUParams *params)
         macroop[i] = nullptr;
         delayedCommit[i] = false;
         memReq[i] = nullptr;
-        stalls[i] = {false, false};
+        stalls[i] = {false, false, false};
         fetchBuffer[i] = NULL;
         fetchBufferPC[i] = 0;
         fetchBufferValid[i] = false;
@@ -338,6 +339,7 @@ DefaultFetch<Impl>::clearStates(ThreadID tid)
     memReq[tid] = NULL;
     stalls[tid].decode = false;
     stalls[tid].drain = false;
+    stalls[tid].bp = false;
     fetchBufferPC[tid] = 0;
     fetchBufferValid[tid] = false;
     fetchQueue[tid].clear();
@@ -368,6 +370,7 @@ DefaultFetch<Impl>::resetStage()
 
         stalls[tid].decode = false;
         stalls[tid].drain = false;
+        stalls[tid].bp = false;
 
         fetchBufferPC[tid] = 0;
         fetchBufferValid[tid] = false;
@@ -432,6 +435,7 @@ DefaultFetch<Impl>::drainResume()
     for (ThreadID i = 0; i < numThreads; ++i) {
         stalls[i].decode = false;
         stalls[i].drain = false;
+        stalls[i].bp = false;
     }
 }
 
@@ -951,7 +955,7 @@ DefaultFetch<Impl>::tick()
     unsigned available_insts = 0;
 
     for (auto tid : *activeThreads) {
-        if (!stalls[tid].decode) {
+        if (!stalls[tid].decode && !stalls[tid].bp) {
             available_insts += fetchQueue[tid].size();
         }
     }
@@ -962,7 +966,7 @@ DefaultFetch<Impl>::tick()
 
     while (available_insts != 0 && insts_to_decode < decodeWidth) {
         ThreadID tid = *tid_itr;
-        if (!stalls[tid].decode && !fetchQueue[tid].empty()) {
+        if (!stalls[tid].decode && !stalls[tid].bp && !fetchQueue[tid].empty()) {
             const auto& inst = fetchQueue[tid].front();
             toDecode->insts[toDecode->size++] = inst;
             DPRINTF(Fetch, "[tid:%i] [sn:%llu] Sending instruction to decode "
@@ -1004,6 +1008,14 @@ DefaultFetch<Impl>::checkSignalsAndUpdate(ThreadID tid)
         assert(stalls[tid].decode);
         assert(!fromDecode->decodeBlock[tid]);
         stalls[tid].decode = false;
+    }
+
+    if(branchPred->stall_cycles > 0) {
+        stalls[tid].bp = true;
+        DPRINTF(PCRepair, "Stalling due to BP repair; %d cycles left\n", branchPred->stall_cycles);
+        branchPred->stall_cycles--;
+    } else {
+        stalls[tid].bp = false;
     }
 
     // Check squash signals from commit.
