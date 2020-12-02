@@ -515,6 +515,6 @@ OBQ::repair_branch(InstSeqNum squash_seq_num)
                         << g_OBQ.size() << " head: " << head << " tail: "
                         << tail << std::endl;
                 }
-        return pcs.size() * 10;
+        return pcs.size();
 
 }
