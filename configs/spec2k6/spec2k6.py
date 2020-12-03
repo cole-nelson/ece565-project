@@ -124,7 +124,7 @@ zeusmp.output = 'zeusmp.stdout'
 #435.gromacs
 gromacs = Process()
 gromacs_dir='435.gromacs/'
-gromacs.executable = bench_dir+gromacs_dir+gromacs_dir+\
+gromacs.executable = bench_dir+gromacs_dir+\
     '/exe/gromacs_base.amd64-armcross'
 data=bench_dir+gromacs_dir+'/data/ref/input/gromacs.tpr'
 gromacs.cmd = [gromacs.executable] + ['-silent','-deffnm',data,'-nice','0']

@@ -107,6 +107,8 @@ TAGE::lookup(ThreadID tid, Addr branch_pc, void* &bp_history)
 
     tage->updateHistories(tid, branch_pc, retval, bi->tageBranchInfo, true);
 
+        //std::cout << "TAGE Size: " << tage->getSizeInBits() << std::endl;
+
     return retval;
 }
 

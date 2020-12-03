@@ -59,7 +59,7 @@ class BranchPredictor(SimObject):
     abstract = True
 
     numThreads = Param.Unsigned(Parent.numThreads, "Number of threads")
-    BTBEntries = Param.Unsigned(4096, "Number of BTB entries")
+    BTBEntries = Param.Unsigned(2048, "Number of BTB entries")
     BTBTagSize = Param.Unsigned(16, "Size of the BTB tags, in bits")
     RASSize = Param.Unsigned(16, "RAS size")
     instShiftAmt = Param.Unsigned(2, "Number of bits to shift instructions by")
@@ -156,7 +156,7 @@ class LTAGE_TAGE(TAGEBase):
     minHist = 4
     maxHist = 640
     tagTableTagWidths = [0, 7, 7, 8, 8, 9, 10, 11, 12, 12, 13, 14, 15]
-    logTagTableSizes = [14, 10, 10, 11, 11, 11, 11, 10, 10, 10, 10, 9, 9]
+    logTagTableSizes = [14, 10, 10, 11, 11, 11, 11, 10, 10, 10, 10, 9 , 9]
     logUResetPeriod = 19
 
 class LoopPredictor(SimObject):
@@ -171,7 +171,7 @@ class LoopPredictor(SimObject):
             "Number of confidence bits per loop entry")
     loopTableTagBits = Param.Unsigned(14, "Number of tag bits per loop entry")
     loopTableIterBits = Param.Unsigned(14, "Nuber of iteration bits per loop")
-    logLoopTableAssoc = Param.Unsigned(2, "Log loop predictor associativity")
+    logLoopTableAssoc = Param.Unsigned(3, "Log loop predictor associativity")
 
     # Parameters for enabling modifications to the loop predictor
     # They have been copied from TAGE-GSC-IMLI
