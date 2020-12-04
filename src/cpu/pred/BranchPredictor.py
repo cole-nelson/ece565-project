@@ -124,7 +124,7 @@ class TAGEBase(SimObject):
     tagTableCounterBits = Param.Unsigned(3, "Number of tag table counter bits")
     tagTableUBits = Param.Unsigned(2, "Number of tag table u bits")
 
-    histBufferSize = Param.Unsigned(8192,
+    histBufferSize = Param.Unsigned(2097152,
             "A large number to track all branch histories(2MEntries default)")
 
     pathHistBits = Param.Unsigned(16, "Path history size")
@@ -152,7 +152,6 @@ class TAGE(BranchPredictor):
     tage = Param.TAGEBase(TAGEBase(), "Tage object")
 
 class LTAGE_TAGE(TAGEBase):
-    histBufferSize = 8192
     nHistoryTables = 12
     minHist = 4
     maxHist = 640
@@ -172,7 +171,7 @@ class LoopPredictor(SimObject):
             "Number of confidence bits per loop entry")
     loopTableTagBits = Param.Unsigned(14, "Number of tag bits per loop entry")
     loopTableIterBits = Param.Unsigned(11, "Nuber of iteration bits per loop")
-    logLoopTableAssoc = Param.Unsigned(8, "Log loop predictor associativity")
+    logLoopTableAssoc = Param.Unsigned(3, "Log loop predictor associativity")
 
     # Parameters for enabling modifications to the loop predictor
     # They have been copied from TAGE-GSC-IMLI
