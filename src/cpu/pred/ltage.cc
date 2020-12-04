@@ -73,10 +73,10 @@ LTAGE::predict(ThreadID tid, Addr branch_pc, bool cond_branch, void* &b)
     if (cond_branch) {
         if (bi->lpBranchInfo->loopPredUsed) {
             bi->tageBranchInfo->provider = LOOP;
-                        //add new prediction to OBQ
-                obq->new_branch_inst(branch_pc, bi->lpBranchInfo->loopPredUsed,
-            bi->lpBranchInfo->loopPredValid,
-            bi->lpBranchInfo->currentIter, obqtag);
+            //add new prediction to OBQ
+            //obq->new_branch_inst(branch_pc, bi->lpBranchInfo->loopPredUsed,
+            //bi->lpBranchInfo->loopPredValid,
+            //bi->lpBranchInfo->currentIter, obqtag);
         }
 
         DPRINTF(LTage, "Predict for %lx: taken?:%d, loopTaken?:%d, "
@@ -127,7 +127,7 @@ LTAGE::update(ThreadID tid, Addr branch_pc, bool taken, void* bp_history,
         bi->tageBranchInfo->tagePred, bi->lpBranchInfo, instShiftAmt);
 
         //take done seq num, anything less than it, remove from OBQ//
-        obq->retire_branch(done_seq_num);
+        //obq->retire_branch(done_seq_num);
 
         tage->condBranchUpdate(tid, branch_pc, taken, bi->tageBranchInfo,
             nrand, corrTarget, bi->lpBranchInfo->predTaken);
@@ -146,17 +146,18 @@ LTAGE::squash(ThreadID tid, void *bp_history)
 
     if (bi->tageBranchInfo->condBranch) {
         //loopPredictor->set_repair_bit(); //gets set multiple times
-                if (obq->g_OBQ.size() != 0)
-                {
-                        if (obq->g_OBQ.back().tag >= freed_seq_num)
-                        {
+                //if (obq->g_OBQ.size() != 0)
+                //{
+                        //if (obq->g_OBQ.back().tag >= freed_seq_num
+                                //|| obq->g_OBQ.back().tag == squash_seq_num)
+                        //{
                                 loopPredictor->squash(tid, bi->lpBranchInfo);
-                                if (cycles == -1)
-                                {
-                                cycles = obq->repair_branch(squash_seq_num);
-                                }
-                        }
-                }
+                               // if (cycles == -1)
+                                //{
+                                //cycles = obq->repair_branch(squash_seq_num);
+                                //}
+                        //}
+                //}
 
     }
 

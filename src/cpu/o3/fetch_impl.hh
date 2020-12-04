@@ -1017,6 +1017,8 @@ DefaultFetch<Impl>::checkSignalsAndUpdate(ThreadID tid)
     }
         if (branchPred->cycles > 0)
         {
+                                std::cout << "Branch Pred Stall: "
+                                << branchPred->cycles << std::endl;
                 stalls[tid].bpred = true;
                 branchPred->cycles--;
         }

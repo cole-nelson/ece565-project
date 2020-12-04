@@ -375,7 +375,7 @@ BPredUnit::squash(const InstSeqNum &squashed_sn, ThreadID tid)
     if (iPred) {
         iPred->squash(squashed_sn, tid);
     }
-        cycles = -1;
+    cycles = -1;
     while (!pred_hist.empty() &&
            pred_hist.front().seqNum > squashed_sn) {
         if (pred_hist.front().usedRAS) {

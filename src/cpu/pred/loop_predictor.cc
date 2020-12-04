@@ -383,7 +383,7 @@ LoopPredictorParams::create()
 void
 OBQ::retire_branch(InstSeqNum done_seq_num)
 {
-                std::cout << "In retire branch inst" << std::endl;
+                //std::cout << "In retire branch inst" << std::endl;
         int start, end = -1;
         if (g_OBQ.empty())
         {
@@ -404,8 +404,8 @@ OBQ::retire_branch(InstSeqNum done_seq_num)
         }
                 if (start != -1 && end != -1)
                 {
-                        std::cout << "Erasing start: " <<
-                        start << " end: " << end << std::endl;
+                        //std::cout << "Erasing start: " <<
+                        //start << " end: " << end << std::endl;
                         g_OBQ.erase(g_OBQ.begin()+start, g_OBQ.begin()+end+1);
                 }
                 return;
@@ -415,9 +415,9 @@ int
 OBQ::new_branch_inst(Addr branch_pc, bool loopPredUsed, bool loopPredValid,
 uint16_t curriter, InstSeqNum obqtag)
 {
-                std::cout << "In new branch inst -> OBQ size: "
-                << g_OBQ.size() << " head: " << head << " tail: "
-                << tail << " valid: " << loopPredValid << std::endl;
+                //std::cout << "In new branch inst -> OBQ size: "
+                //<< g_OBQ.size() << " head: " << head << " tail: "
+                //<< tail << " valid: " << loopPredValid << std::endl;
         int tag = g_OBQ.size();
         if (((head % size_of_OBQ) ==
                 ((tail) % size_of_OBQ)) && (g_OBQ.size() == size_of_OBQ))
@@ -456,9 +456,9 @@ uint16_t curriter, InstSeqNum obqtag)
                 {
                         tail = 0;
                 }
-                std::cout << "new branch inst added -> OBQ size: "
-                << g_OBQ.size() << " head: " << head << " tail: "
-                << tail << std::endl;
+                //std::cout << "new branch inst added -> OBQ size: "
+                //<< g_OBQ.size() << " head: " << head << " tail: "
+                //<< tail << std::endl;
                 return tag;
         }
 }
@@ -503,17 +503,17 @@ OBQ::repair_branch(InstSeqNum squash_seq_num)
                         std::cout << "PC of OBQ[" << i << "]: "
                         << g_OBQ[i].branch_pc << std::endl;
                 }
-                std::cout << "Num of PCS to repair: "
-                << pcs.size() << std::endl;
+                //std::cout << "Num of PCS to repair: "
+                //<< pcs.size() << std::endl;
                 if (end != -1 && index != -1)
                 {
-                        std::cout << "Attempting to erase" << std::endl;
+                       // std::cout << "Attempting to erase" << std::endl;
                 g_OBQ.erase(g_OBQ.begin()+index+1, g_OBQ.end());
                         tail = head + index + 1;
-                        std::cout << "erased!!" << std::endl;
-                        std::cout << "repair completed -> OBQ size: "
-                        << g_OBQ.size() << " head: " << head << " tail: "
-                        << tail << std::endl;
+                        //std::cout << "erased!!" << std::endl;
+                        //std::cout << "repair completed -> OBQ size: "
+                        //<< g_OBQ.size() << " head: " << head << " tail: "
+                        //<< tail << std::endl;
                 }
         return pcs.size();
 
