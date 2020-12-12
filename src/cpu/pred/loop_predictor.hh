@@ -275,13 +275,14 @@ class OBQ
                         Addr branch_pc;
                         bool valid;
                         bool loopPredUsed;
-                                                uint16_t curriter;
+                        uint16_t curriter;
                         InstSeqNum tag;
                 };
         std::vector<OBQ_entry> g_OBQ;
         int head = 0;
         int tail = 0;
-        int size_of_OBQ = 16;
+        int size_of_OBQ = 32;
+                bool forward_walk = false;
 
         /*Function to repair mispredicted branch, handled in squash*/
         int repair_branch(InstSeqNum squash_seq_num);
@@ -291,6 +292,16 @@ class OBQ
 
         /*Function to add new branch instruction to OBQ*/
         int new_branch_inst(Addr branch_pc, bool loopPredUsed,
+                bool loopPredValid, uint16_t curriter, InstSeqNum obqtag);
+
+                /*Function to repair mispredicted branch, handled in squash*/
+        int repair_branch2(InstSeqNum squash_seq_num);
+
+        /*Function to retire OBQ entry after cond branch committed*/
+        void retire_branch2(InstSeqNum done_seq_num);
+
+        /*Function to add new branch instruction to OBQ*/
+        int new_branch_inst2(Addr branch_pc, bool loopPredUsed,
                 bool loopPredValid, uint16_t curriter, InstSeqNum obqtag);
 
 };

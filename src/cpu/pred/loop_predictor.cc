@@ -321,9 +321,9 @@ LoopPredictor::squashLoop(BranchInfo* bi)
 void
 LoopPredictor::updateStats(bool taken, BranchInfo* bi)
 {
-    if (taken == bi->loopPred) {
+    if (taken == bi->loopPred && bi->loopPredUsed) {
         loopPredictorCorrect++;
-    } else {
+    } else if (taken != bi->loopPred && bi->loopPredUsed){
         loopPredictorWrong++;
     }
 }
@@ -465,7 +465,7 @@ uint16_t curriter, InstSeqNum obqtag)
 int
 OBQ::repair_branch(InstSeqNum squash_seq_num)
 {
-                std::cout << "In repair branch inst" << std::endl;
+                //std::cout << "In repair branch inst" << std::endl;
         int end = -1;
                 int index = -1;;
                 int flag;
@@ -482,8 +482,8 @@ OBQ::repair_branch(InstSeqNum squash_seq_num)
                                         end = index;
                                         pcs.push_back(g_OBQ[i].branch_pc);
                 }
-                                std::cout << "Index : "
-                                << index << std::endl;
+                                //std::cout << "Index : "
+                                //<< index << std::endl;
         }
                 for (int i = index; i < g_OBQ.size(); i++)
                 {
@@ -500,8 +500,8 @@ OBQ::repair_branch(InstSeqNum squash_seq_num)
                                 pcs.push_back(g_OBQ[i].branch_pc);
                         }
                         end++;
-                        std::cout << "PC of OBQ[" << i << "]: "
-                        << g_OBQ[i].branch_pc << std::endl;
+                        //std::cout << "PC of OBQ[" << i << "]: "
+                        //<< g_OBQ[i].branch_pc << std::endl;
                 }
                 //std::cout << "Num of PCS to repair: "
                 //<< pcs.size() << std::endl;
@@ -515,6 +515,20 @@ OBQ::repair_branch(InstSeqNum squash_seq_num)
                         //<< g_OBQ.size() << " head: " << head << " tail: "
                         //<< tail << std::endl;
                 }
-        return pcs.size();
+                if (!forward_walk)
+                {
+                        if (pcs.size() > 0)
+                        {
+                                return (end - index) * 2;
+                        }
+                        else
+                        {
+                                return pcs.size();
+                        }
+                }
+                else
+                {
+                return pcs.size() * 2;
+                }
 
 }

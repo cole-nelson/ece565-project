@@ -45,8 +45,11 @@
 
 #include "base/sat_counter.hh"
 #include "base/types.hh"
+#include "cpu/inst_seq.hh"
 #include "cpu/pred/bpred_unit.hh"
+#include "cpu/pred/loop_predictor.hh"
 #include "params/TournamentBP.hh"
+#include "sim/sim_object.hh"
 
 /**
  * Implements a tournament branch predictor, hopefully identical to the one
@@ -59,6 +62,8 @@
 class TournamentBP : public BPredUnit
 {
   public:
+
+        OBQ* obq;
     /**
      * Default branch predictor constructor.
      */
@@ -237,5 +242,6 @@ class TournamentBP : public BPredUnit
     unsigned globalThreshold;
     unsigned choiceThreshold;
 };
+
 
 #endif // __CPU_PRED_TOURNAMENT_PRED_HH__

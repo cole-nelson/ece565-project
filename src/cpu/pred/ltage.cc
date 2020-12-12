@@ -47,7 +47,7 @@
 LTAGE::LTAGE(const LTAGEParams *params)
   : TAGE(params), loopPredictor(params->loop_predictor)
 {
-        obq = new OBQ;
+        //obq = new OBQ;
 }
 
 void
@@ -74,10 +74,29 @@ LTAGE::predict(ThreadID tid, Addr branch_pc, bool cond_branch, void* &b)
         if (bi->lpBranchInfo->loopPredUsed) {
             bi->tageBranchInfo->provider = LOOP;
             //add new prediction to OBQ
-            //obq->new_branch_inst(branch_pc, bi->lpBranchInfo->loopPredUsed,
-            //bi->lpBranchInfo->loopPredValid,
-            //bi->lpBranchInfo->currentIter, obqtag);
+            /*obq->new_branch_inst(branch_pc, bi->lpBranchInfo->loopPredUsed,
+            bi->lpBranchInfo->loopPredValid,
+            bi->lpBranchInfo->currentIter, obqtag);
+                        if (obq->g_OBQ.size() == obq->size_of_OBQ)
+                        {
+                                obq_full = true;
+                        }
+                        else
+                        {
+                                obq_full = false;
+                        }*/
         }
+                /*else
+                {
+                        bi->tageBranchInfo->provider = LOOP;
+                        bi->tageBranchInfo->tagePred = 
+						bi->lpBranchInfo->loopPred;
+                        bi->lpBranchInfo->loopPredUsed = true;
+                        /obq->new_branch_inst(branch_pc, 
+						bi->lpBranchInfo->loopPredUsed,
+                        true,
+                        bi->lpBranchInfo->currentIter, obqtag);
+                }*/
 
         DPRINTF(LTage, "Predict for %lx: taken?:%d, loopTaken?:%d, "
                 "loopValid?:%d, loopUseCounter:%d, tagePred:%d, altPred:%d\n",
@@ -88,9 +107,9 @@ LTAGE::predict(ThreadID tid, Addr branch_pc, bool cond_branch, void* &b)
     }
 
     // record final prediction
-    bi->lpBranchInfo->predTaken = pred_taken;
+    bi->lpBranchInfo->predTaken = bi->lpBranchInfo->loopPred;
 
-    return pred_taken;
+    return bi->lpBranchInfo->loopPred;
 }
 
 // PREDICTOR UPDATE
@@ -146,18 +165,19 @@ LTAGE::squash(ThreadID tid, void *bp_history)
 
     if (bi->tageBranchInfo->condBranch) {
         //loopPredictor->set_repair_bit(); //gets set multiple times
-                //if (obq->g_OBQ.size() != 0)
-                //{
-                        //if (obq->g_OBQ.back().tag >= freed_seq_num
-                                //|| obq->g_OBQ.back().tag == squash_seq_num)
-                        //{
-                                loopPredictor->squash(tid, bi->lpBranchInfo);
-                               // if (cycles == -1)
-                                //{
-                                //cycles = obq->repair_branch(squash_seq_num);
-                                //}
-                        //}
-                //}
+               /* if (obq->g_OBQ.size() != 0)
+                {
+                                    if (obq->g_OBQ.back().tag >= 
+									freed_seq_num || repair_flag == true)
+                                    {*/
+                        loopPredictor->squash(tid, bi->lpBranchInfo);
+                        /*if (cycles == -1)
+                        {
+                        cycles = obq->repair_branch(squash_seq_num);
+                                                    repair_flag = true;
+                        }
+                }
+}*/
 
     }
 

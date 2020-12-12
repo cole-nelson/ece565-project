@@ -60,7 +60,7 @@ BPredUnit::BPredUnit(const Params *params)
           params->instShiftAmt,
           params->numThreads),
       RAS(numThreads),
-      iPred(params->indirectBranchPred),
+      iPred(NULL),
       instShiftAmt(params->instShiftAmt)
 {
     for (auto& r : RAS)
@@ -176,6 +176,7 @@ BPredUnit::predict(const StaticInstPtr &inst, const InstSeqNum &seqNum,
     // up once it's done.
 
     bool pred_taken = false;
+        obq_full = false;
     TheISA::PCState target = pc;
 
     ++lookups;
@@ -193,7 +194,7 @@ BPredUnit::predict(const StaticInstPtr &inst, const InstSeqNum &seqNum,
         uncondBranch(tid, pc.instAddr(), bp_history);
     } else {
         ++condPredicted;
-                obqtag = seqNum;
+        obqtag = seqNum;
         pred_taken = lookup(tid, pc.instAddr(), bp_history);
 
         DPRINTF(Branch, "[tid:%i] [sn:%llu] "
@@ -376,6 +377,7 @@ BPredUnit::squash(const InstSeqNum &squashed_sn, ThreadID tid)
         iPred->squash(squashed_sn, tid);
     }
     cycles = -1;
+        repair_flag = false;
     while (!pred_hist.empty() &&
            pred_hist.front().seqNum > squashed_sn) {
         if (pred_hist.front().usedRAS) {
@@ -411,8 +413,8 @@ BPredUnit::squash(const InstSeqNum &squashed_sn, ThreadID tid)
         DPRINTF(Branch, "[tid:%i] [squash sn:%llu] predHist.size(): %i\n",
                 tid, squashed_sn, predHist[tid].size());
     }
-        std::cout << "Num of Cycles to delay from repair: "
-        << cycles << std::endl;
+        //std::cout << "Num of Cycles to delay from repair: "
+        //<< cycles << std::endl;
 }
 
 void

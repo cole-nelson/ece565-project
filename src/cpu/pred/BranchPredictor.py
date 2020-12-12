@@ -170,8 +170,8 @@ class LoopPredictor(SimObject):
     loopTableConfidenceBits = Param.Unsigned(2,
             "Number of confidence bits per loop entry")
     loopTableTagBits = Param.Unsigned(14, "Number of tag bits per loop entry")
-    loopTableIterBits = Param.Unsigned(14, "Nuber of iteration bits per loop")
-    logLoopTableAssoc = Param.Unsigned(2, "Log loop predictor associativity")
+    loopTableIterBits = Param.Unsigned(11, "Nuber of iteration bits per loop")
+    logLoopTableAssoc = Param.Unsigned(3, "Log loop predictor associativity")
 
     # Parameters for enabling modifications to the loop predictor
     # They have been copied from TAGE-GSC-IMLI

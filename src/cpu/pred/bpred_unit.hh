@@ -83,6 +83,10 @@ class BPredUnit : public SimObject
         /*number of cycles to stall*/
         int cycles;
 
+                bool repair_flag;
+
+                bool obq_full;
+
 
 
     /**

@@ -116,6 +116,8 @@ TournamentBP::TournamentBP(const TournamentBPParams *params)
     localThreshold  = (ULL(1) << (localCtrBits  - 1)) - 1;
     globalThreshold = (ULL(1) << (globalCtrBits - 1)) - 1;
     choiceThreshold = (ULL(1) << (choiceCtrBits - 1)) - 1;
+
+        obq = new OBQ;
 }
 
 inline
@@ -208,6 +210,10 @@ TournamentBP::lookup(ThreadID tid, Addr branch_addr, void * &bp_history)
 
     // Speculative update of the global history and the
     // selected local history.
+        choice_prediction = true;
+        local_prediction = true;
+        global_prediction = false;
+
     if (choice_prediction) {
         if (global_prediction) {
             updateGlobalHistTaken(tid);
@@ -220,10 +226,14 @@ TournamentBP::lookup(ThreadID tid, Addr branch_addr, void * &bp_history)
         }
     } else {
         if (local_prediction) {
+            //obq->new_branch_inst2(branch_addr,true, 
+			//true, 0, obqtag);
             updateGlobalHistTaken(tid);
             updateLocalHistTaken(local_history_idx);
             return true;
         } else {
+            //obq->new_branch_inst2(branch_addr, 
+			//true, true, 0, obqtag);
             updateGlobalHistNotTaken(tid);
             updateLocalHistNotTaken(local_history_idx);
             return false;
@@ -286,6 +296,9 @@ TournamentBP::update(ThreadID tid, Addr branch_addr, bool taken,
 
     assert(old_local_pred_index < localPredictorSize);
 
+        //take done seq num, anything less than it, remove from OBQ//
+    //obq->retire_branch2(done_seq_num);
+
     // Update the choice predictor to tell it which one was correct if
     // there was a prediction.
     if (history->localPredTaken != history->globalPredTaken &&
@@ -334,10 +347,24 @@ TournamentBP::squash(ThreadID tid, void *bp_history)
     // Restore global history to state prior to this branch.
     globalHistory[tid] = history->globalHistory;
 
-    // Restore local history
-    if (history->localHistoryIdx != invalidPredictorIndex) {
-        localHistoryTable[history->localHistoryIdx] = history->localHistory;
-    }
+    /*if (obq->g_OBQ.size() != 0)
+    {
+        if (obq->g_OBQ.back().tag 
+		>= freed_seq_num || repair_flag == true)
+        {*/
+                if (history->localHistoryIdx != invalidPredictorIndex) {
+                                        localHistoryTable[history->localHistoryIdx] = history->localHistory;
+                }/*
+                if (cycles == -1)
+                {
+                cycles = obq->repair_branch2(squash_seq_num);
+                                std::cout << "Cycles to stall 
+							from bpred: " << cycles << std::endl;
+                                repair_flag = true;
+                }
+        }
+    }*/
+
 
     // Delete this BPHistory now that we're done with it.
     delete history;
@@ -347,6 +374,157 @@ TournamentBP*
 TournamentBPParams::create()
 {
     return new TournamentBP(this);
+}
+
+void
+OBQ::retire_branch2(InstSeqNum done_seq_num)
+{
+                //std::cout << "In retire branch inst" << std::endl;
+        int start, end = -1;
+        if (g_OBQ.empty())
+        {
+                return;
+        }
+        for (int i = 0; i < g_OBQ.size(); i++)
+        {
+                if (g_OBQ[i].tag <= done_seq_num)
+                {
+                    start = 0;
+                    end++;
+                    head++;
+                    if (head > size_of_OBQ - 1)
+                    {
+                        head = 0;
+                    }
+                }
+        }
+                if (start != -1 && end != -1)
+                {
+                        //std::cout << "Erasing start: " <<
+                        //start << " end: " << end << std::endl;
+                        g_OBQ.erase(g_OBQ.begin()+start, g_OBQ.begin()+end+1);
+                }
+                return;
+}
+//\*****DOUBLE CHECK IMPLEMENTATION******\//
+int
+OBQ::new_branch_inst2(Addr branch_pc, bool loopPredUsed, 
+bool loopPredValid, uint16_t curriter, InstSeqNum obqtag)
+{
+                //std::cout << "In new branch inst -> OBQ size: "
+                //<< g_OBQ.size() << " head: " << head << " tail: "
+                //<< tail << " valid: " << loopPredValid << std::endl;
+        int tag = g_OBQ.size();
+        if (((head % size_of_OBQ) ==
+                ((tail) % size_of_OBQ)) && (g_OBQ.size() == size_of_OBQ))
+        {
+                return -1;
+        }
+        else
+        {
+                if (true)
+                {
+                //add to the end
+                g_OBQ.push_back({branch_pc, true, true, 0, obqtag});
+                }
+                else
+                {
+                        //add before the tail
+                    if (g_OBQ.size() > 0)
+                    {
+        OBQ_entry temp;
+        g_OBQ.push_back({branch_pc, true, true, 0, obqtag});
+        temp = g_OBQ[tail -1];
+        g_OBQ[tail-1] = g_OBQ[tail];
+        g_OBQ[tail] = temp;
+                    }
+                    else
+                    {
+                            //add to the end
+        g_OBQ.push_back({branch_pc, 
+		true, true, 0, obqtag});
+                    }
+                }
+                tail++;
+                if (tail > size_of_OBQ - 1)
+                {
+                        tail = 0;
+                }
+                //std::cout << "new branch inst added -> OBQ size: "
+                //<< g_OBQ.size() << " head: " << head << " tail: "
+                //<< tail << std::endl;
+                return tag;
+        }
+}
+int
+OBQ::repair_branch2(InstSeqNum squash_seq_num)
+{
+                std::cout << "In repair branch inst" << std::endl;
+        int end = -1;
+                int index = -1;;
+                int flag;
+                std::vector<Addr> pcs;
+        if (g_OBQ.empty())
+        {
+                return 0;
+        }
+        for (int i = 0; i < g_OBQ.size(); i++)
+        {
+                if (g_OBQ[i].tag == squash_seq_num)
+                {
+                                        index = i;
+                                        end = index;
+                                        pcs.push_back(g_OBQ[i].branch_pc);
+                }
+                                std::cout << "Index : "
+                                << index << std::endl;
+        }
+                for (int i = index; i < g_OBQ.size(); i++)
+                {
+                        flag = 0;
+                        for (int j = 0; j < pcs.size(); j++)
+                        {
+                                if (g_OBQ[i].branch_pc == pcs[j])
+                                {
+                                        flag = 1;
+                                }
+                        }
+                        if (flag == 0)
+                        {
+                                pcs.push_back(g_OBQ[i].branch_pc);
+                        }
+                        end++;
+                        std::cout << "PC of OBQ[" << i << "]: "
+                        << g_OBQ[i].branch_pc << std::endl;
+                }
+                //std::cout << "Num of PCS to repair: "
+                //<< pcs.size() << std::endl;
+                if (end != -1 && index != -1)
+                {
+                       // std::cout << "Attempting to erase" << std::endl;
+                g_OBQ.erase(g_OBQ.begin()+index+1, g_OBQ.end());
+                        tail = head + index + 1;
+                        //std::cout << "erased!!" << std::endl;
+                        //std::cout << "repair completed -> OBQ size: "
+                        //<< g_OBQ.size() << " head: " << head << " tail: "
+                        //<< tail << std::endl;
+                }
+                if (!forward_walk)
+                {
+                        if (pcs.size() > 0)
+                        {
+                                return (end - index);
+                        }
+                        else
+                        {
+                                return pcs.size();
+                        }
+                }
+                else
+                {
+                return pcs.size();
+                }
+
 }
 
 #ifdef DEBUG
