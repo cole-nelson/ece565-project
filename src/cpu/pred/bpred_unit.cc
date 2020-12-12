@@ -60,7 +60,7 @@ BPredUnit::BPredUnit(const Params *params)
           params->instShiftAmt,
           params->numThreads),
       RAS(numThreads),
-      iPred(params->indirectBranchPred),
+      iPred(NULL), // disable indirect predictor
       instShiftAmt(params->instShiftAmt),
       stall_cycles(0)
 {

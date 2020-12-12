@@ -39,6 +39,10 @@ bool PCRepair::eligible(int pc) {
 }
 
 void PCRepair::mark_pc(int pc) {
+    if(M == 0) {
+        return;
+    }
+
     DPRINTF(PCRepair, "Marking PC %d in LRU queue\n", pc);
     if(repair_set.count(pc)) {
         // PC Already in queue, move to front
@@ -53,7 +57,7 @@ void PCRepair::mark_pc(int pc) {
         
         // LRU Queue & Repair set should be synced
         assert(lru_queue.front() == pc);
-    } else if(repair_set.size() == M) {
+    } else if(repair_set.size() >= M) {
         // Already tracking M PCs, remove LRU & Add PC
         auto temp = lru_queue.back();
         lru_queue.pop_back();
@@ -65,7 +69,7 @@ void PCRepair::mark_pc(int pc) {
         // Replace PC in repair set
         repair_set.erase(temp_idx);
         repair_set.insert(pc);
-    } else {
+    } else if(repair_set.size() < M) {
         // Warm-up case: Not tracking M PCs yet
         lru_queue.push_front(pc);
         repair_set.insert(pc);
@@ -93,8 +97,15 @@ void PCRepair::remove_lru_pc(int pc) {
 // however, as a PC could be promoted from history -> LRU set. Need to remove from one
 // before adding to other.
 void PCRepair::add_history(int pc) {
+    if(M == 0) {
+        return;
+    }
+
     DPRINTF(PCRepair, "Marking PC %d in history queue\n", pc);
-    if(history_set.count(pc)) {
+    if(repair_set.count(pc)) {
+        // Don't add repair-eligible PCs to history set
+        return;
+    } else if(history_set.count(pc)) {
         for(auto it = update_history.begin(); it != update_history.end(); it++) {
             if(*(it) == pc) {
                 update_history.erase(it);
@@ -104,7 +115,7 @@ void PCRepair::add_history(int pc) {
         }
 
         assert(update_history.front() == pc);
-    } else if(history_set.size() == M) {
+    } else if(history_set.size() >= M) {
         auto temp = update_history.back();
         update_history.pop_back();
         auto temp_idx = history_set.find(temp);
@@ -115,9 +126,9 @@ void PCRepair::add_history(int pc) {
         // Add new PC
         history_set.insert(pc);
         update_history.push_front(pc);
-    } else {
+    } else if(history_set.size() < M) {
         update_history.push_front(pc);
-        repair_set.insert(pc);
+        history_set.insert(pc);
     }
 
     assert(update_history.size() == history_set.size() && history_set.size() <= M);
@@ -133,6 +144,6 @@ void PCRepair::remove_history_pc(int pc) {
             }
         }
 
-        history_set.erase(repair_set.find(pc));
+        history_set.erase(history_set.find(pc));
     }
 }

@@ -46,6 +46,7 @@
 #include "base/sat_counter.hh"
 #include "base/types.hh"
 #include "cpu/pred/bpred_unit.hh"
+#include "cpu/pred/pc_repair.hh"
 #include "params/TournamentBP.hh"
 
 /**
@@ -236,6 +237,9 @@ class TournamentBP : public BPredUnit
     unsigned localThreshold;
     unsigned globalThreshold;
     unsigned choiceThreshold;
+
+    /* PC REPAIR */
+    PCRepair repair;
 };
 
 #endif // __CPU_PRED_TOURNAMENT_PRED_HH__

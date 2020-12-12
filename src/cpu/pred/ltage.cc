@@ -65,10 +65,11 @@ LTAGE::predict(ThreadID tid, Addr branch_pc, bool cond_branch, void* &b)
 
     bool pred_taken = tage->tagePredict(tid, branch_pc, cond_branch,
                                         bi->tageBranchInfo);
-
+/*
     pred_taken = loopPredictor->loopPredict(tid, branch_pc, cond_branch,
                                             bi->lpBranchInfo, pred_taken,
                                             instShiftAmt);
+                                            */
     if (cond_branch) {
         if (bi->lpBranchInfo->loopPredUsed) {
             bi->tageBranchInfo->provider = LOOP;

@@ -1,0 +1,39 @@
+multiperspective_perceptron_tage.cc:    fatal_if(tage->isSpeculativeUpdateEnabled(),
+multiperspective_perceptron_tage.cc:    tage->init();
+multiperspective_perceptron_tage.cc:    int numBitsTage = tage->getSizeInBits();
+multiperspective_perceptron_tage.cc:    bool pred_taken = tage->tagePredict(tid, instPC, true, bi->tageBranchInfo);
+multiperspective_perceptron_tage.cc:    bi->scBranchInfo->highConf = tage->isHighConfidence(bi->tageBranchInfo);
+multiperspective_perceptron_tage.cc:            0 /* altBank: unused */, tage->getPathHist(tid), init_lsum);
+multiperspective_perceptron_tage.cc:        if (tage->isSpeculativeUpdateEnabled()) {
+multiperspective_perceptron_tage.cc:            tage->squash(tid, taken, bi->tageBranchInfo, corrTarget);
+multiperspective_perceptron_tage.cc:        tage->updateHistories(tid, instPC, taken, bi->tageBranchInfo, false,
+multiperspective_perceptron_tage.cc:        tage->updateStats(taken, bi->tageBranchInfo);
+multiperspective_perceptron_tage.cc:                tage->getPathHist(tid));
+multiperspective_perceptron_tage.cc:        tage->condBranchUpdate(tid, instPC, taken, bi->tageBranchInfo,
+multiperspective_perceptron_tage.cc:        if (!tage->isSpeculativeUpdateEnabled()) {
+multiperspective_perceptron_tage.cc:            tage->updateHistories(tid, instPC, taken, bi->tageBranchInfo,
+tage.cc:        tage->squash(tid, taken, tage_bi, corrTarget);
+tage.cc:        tage->updateStats(taken, bi->tageBranchInfo);
+tage.cc:        tage->condBranchUpdate(tid, branch_pc, taken, tage_bi, nrand,
+tage.cc:    tage->updateHistories(tid, branch_pc, taken, tage_bi, false, inst,
+tage.cc:    return tage->tagePredict(tid, branch_pc, cond_branch, bi->tageBranchInfo);
+tage.cc:    tage->updateHistories(tid, branch_pc, retval, bi->tageBranchInfo, true);
+tage.cc:    tage->btbUpdate(tid, branch_pc, bi->tageBranchInfo);
+tage.cc:    tage->updateHistories(tid, br_pc, true, bi->tageBranchInfo, true);
+tage_sc_l.cc:    bool pred_taken = tage->tagePredict(tid, branch_pc, cond_branch,
+tage_sc_l.cc:        tage->getCtr(tage_scl_bi->hitBank, tage_scl_bi->hitBankIndex) : 0;
+tage_sc_l.cc:            tage->getTageCtrBits(), bi->tageBranchInfo->hitBank,
+tage_sc_l.cc:            bi->tageBranchInfo->altBank, tage->getPathHist(tid));
+tage_sc_l.cc:        if (tage->isSpeculativeUpdateEnabled()) {
+tage_sc_l.cc:            tage->squash(tid, taken, tage_bi, corrTarget);
+tage_sc_l.cc:        tage->updateStats(taken, bi->tageBranchInfo);
+tage_sc_l.cc:            bi->tageBranchInfo->altBank, tage->getPathHist(tid));
+tage_sc_l.cc:        tage->condBranchUpdate(tid, branch_pc, taken, bi->tageBranchInfo,
+tage_sc_l.cc:    if (!tage->isSpeculativeUpdateEnabled()) {
+tage_sc_l.cc:        tage->updateHistories(tid, branch_pc, taken, bi->tageBranchInfo, false,
+ltage.cc:    bool pred_taken = tage->tagePredict(tid, branch_pc, cond_branch,
+ltage.cc:        if (tage->isSpeculativeUpdateEnabled()) {
+ltage.cc:            tage->squash(tid, taken, bi->tageBranchInfo, corrTarget);
+ltage.cc:        tage->updateStats(taken, bi->tageBranchInfo);
+ltage.cc:        tage->condBranchUpdate(tid, branch_pc, taken, bi->tageBranchInfo,
+ltage.cc:    tage->updateHistories(tid, branch_pc, taken, bi->tageBranchInfo, false,

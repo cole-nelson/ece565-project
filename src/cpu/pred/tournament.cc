@@ -43,6 +43,10 @@
 #include "base/bitfield.hh"
 #include "base/intmath.hh"
 
+#define PC_REPAIR_CNT 4
+#define DISABLE_REPAIR 0
+#define PERFECT_REPAIR 1
+
 TournamentBP::TournamentBP(const TournamentBPParams *params)
     : BPredUnit(params),
       localPredictorSize(params->localPredictorSize),
@@ -61,7 +65,8 @@ TournamentBP::TournamentBP(const TournamentBPParams *params)
           ceilLog2(params->choicePredictorSize)),
       choicePredictorSize(params->choicePredictorSize),
       choiceCtrBits(params->choiceCtrBits),
-      choiceCtrs(choicePredictorSize, SatCounter(choiceCtrBits))
+      choiceCtrs(choicePredictorSize, SatCounter(choiceCtrBits)),
+      repair(PCRepair(PC_REPAIR_CNT))
 {
     if (!isPowerOf2(localPredictorSize)) {
         fatal("Invalid local predictor size!\n");
@@ -146,6 +151,8 @@ inline
 void
 TournamentBP::updateLocalHistTaken(unsigned local_history_idx)
 {
+    // Recency-based history additions
+    repair.add_history(local_history_idx);
     localHistoryTable[local_history_idx] =
         (localHistoryTable[local_history_idx] << 1) | 1;
 }
@@ -193,6 +200,7 @@ TournamentBP::lookup(ThreadID tid, Addr branch_addr, void * &bp_history)
     //Lookup in the choice predictor to see which one to use
     choice_prediction = choiceThreshold <
       choiceCtrs[globalHistory[tid] & choiceHistoryMask];
+    //choice_prediction = true;
 
     // Create BPHistory and pass it back to be recorded.
     BPHistory *history = new BPHistory;
@@ -300,6 +308,9 @@ TournamentBP::update(ThreadID tid, Addr branch_addr, bool taken,
             choiceCtrs[choice_predictor_idx]--;
         } else if (history->globalPredTaken == taken) {
             choiceCtrs[choice_predictor_idx]++;
+            // REPAIR
+            repair.mark_pc(old_local_pred_index);
+            repair.remove_history_pc(old_local_pred_index);
         }
     }
 
@@ -334,9 +345,11 @@ TournamentBP::squash(ThreadID tid, void *bp_history)
     // Restore global history to state prior to this branch.
     globalHistory[tid] = history->globalHistory;
 
-    // Restore local history
-    if (history->localHistoryIdx != invalidPredictorIndex) {
+    // Restore local history IF repair schema allows
+    if (history->localHistoryIdx != invalidPredictorIndex 
+        && (PERFECT_REPAIR || (!DISABLE_REPAIR && repair.eligible(history->localHistoryIdx)))) {
         localHistoryTable[history->localHistoryIdx] = history->localHistory;
+        stall_cycles = (PERFECT_REPAIR) ? 0 : 1; // Add stall for branch repair if not evaluating perfect repair
     }
 
     // Delete this BPHistory now that we're done with it.
